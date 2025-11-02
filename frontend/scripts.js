@@ -4,6 +4,12 @@ const status = document.getElementById("status");
 const spinner = document.getElementById("spinner");
 const dropZone = document.getElementById("dropZone");
 
+const previewContainer = document.getElementById("previewContainer");
+const pdfPreview = document.getElementById("pdfPreview");
+const historyContainer = document.getElementById("historyContainer");
+const historyList = document.getElementById("historyList");
+
+// Función para mostrar estado
 function showStatus(msg, type = "") {
   status.textContent = msg;
   status.className = "status";
@@ -11,13 +17,44 @@ function showStatus(msg, type = "") {
   if (type === "success") status.classList.add("success");
 }
 
+// Manejar archivo en el input
 function handleFile(file) {
-  fileInput.files = new DataTransfer().files; // limpiar input
   const dt = new DataTransfer();
   dt.items.add(file);
   fileInput.files = dt.files;
 }
 
+// Previsualizar PDF
+async function previewPDF(file) {
+  const fileReader = new FileReader();
+  fileReader.onload = async function () {
+    const typedArray = new Uint8Array(this.result);
+    const pdf = await pdfjsLib.getDocument({ data: typedArray }).promise;
+    const page = await pdf.getPage(1);
+    const viewport = page.getViewport({ scale: 1.2 });
+
+    const canvas = pdfPreview;
+    const context = canvas.getContext("2d");
+    canvas.height = viewport.height;
+    canvas.width = viewport.width;
+
+    const renderContext = { canvasContext: context, viewport: viewport };
+    await page.render(renderContext).promise;
+
+    previewContainer.classList.remove("hidden");
+  };
+  fileReader.readAsArrayBuffer(file);
+}
+
+// Agregar a historial
+function addToHistory(fileName) {
+  const li = document.createElement("li");
+  li.textContent = `${fileName} - ${new Date().toLocaleString()}`;
+  historyList.prepend(li);
+  historyContainer.classList.remove("hidden");
+}
+
+// Drag & drop
 dropZone.addEventListener("dragover", (e) => {
   e.preventDefault();
   dropZone.classList.add("dragover");
@@ -30,17 +67,29 @@ dropZone.addEventListener("dragleave", () => {
 dropZone.addEventListener("drop", (e) => {
   e.preventDefault();
   dropZone.classList.remove("dragover");
-  if (e.dataTransfer.files.length) {
-    const file = e.dataTransfer.files[0];
-    if (file.type !== "application/pdf") {
-      showStatus("Solo se permiten archivos PDF.", "error");
-      return;
-    }
-    handleFile(file);
-    showStatus(`Archivo seleccionado: ${file.name}`);
+  if (!e.dataTransfer.files.length) return;
+
+  const file = e.dataTransfer.files[0];
+  if (file.type !== "application/pdf") {
+    showStatus("Solo se permiten archivos PDF.", "error");
+    return;
   }
+
+  handleFile(file);
+  showStatus(`Archivo seleccionado: ${file.name}`);
+  previewPDF(file);
+  addToHistory(file.name);
 });
 
+// Cambio manual en el input
+fileInput.addEventListener("change", () => {
+  if (!fileInput.files.length) return;
+  const file = fileInput.files[0];
+  previewPDF(file);
+  addToHistory(file.name);
+});
+
+// Convertir PDF a Excel
 btn.addEventListener("click", async () => {
   if (!fileInput.files.length) {
     showStatus("Selecciona un PDF primero.", "error");
@@ -66,7 +115,7 @@ btn.addEventListener("click", async () => {
       try {
         const errJson = await response.json();
         if (errJson?.detail) errText = errJson.detail;
-      } catch (e) {
+      } catch {
         errText = await response.text();
       }
       showStatus("Error: " + errText, "error");
@@ -91,3 +140,6 @@ btn.addEventListener("click", async () => {
     spinner.classList.add("hidden");
   }
 });
+
+// Configurar worker de PDF.js
+pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.313/pdf.worker.min.js';

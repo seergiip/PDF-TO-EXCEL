@@ -1,26 +1,39 @@
 <!DOCTYPE html>
 <html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PDF a Excel - Conversor</title>
-  <link rel="stylesheet" href="styles.css">
-</head>
-<body>
-  <div class="container">
-    <h1>PDF a Excel</h1>
-    <p>Sube tu archivo PDF o arrástralo aquí para obtener un Excel.</p>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PDF a Excel - Conversor</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="container">
+      <h1>PDF a Excel</h1>
+      <p>Sube tu archivo PDF o arrástralo aquí para obtener un Excel.</p>
 
-    <div class="upload-section" id="dropZone">
-      <input type="file" id="fileInput" accept="application/pdf">
-      <p>Arrastra tu PDF aquí</p>
-      <button id="convertBtn">Convertir</button>
+      <div class="upload-section" id="dropZone">
+        <input type="file" id="fileInput" accept="application/pdf" />
+        <p>Arrastra tu PDF aquí</p>
+        <button id="convertBtn">Convertir</button>
+      </div>
+
+      <div id="status" class="status"></div>
+      <div id="spinner" class="spinner hidden"></div>
+
+          <!-- Previsualización del PDF -->
+    <div id="previewContainer" class="preview-container hidden">
+      <h3>Previsualización del PDF</h3>
+      <canvas id="pdfPreview"></canvas>
     </div>
 
-    <div id="status" class="status"></div>
-    <div id="spinner" class="spinner hidden"></div>
-  </div>
-
-  <script src="scripts.js"></script>
-</body>
+    <!-- Historial de conversiones -->
+    <div id="historyContainer" class="history-container hidden">
+      <h3>Historial de conversiones</h3>
+      <ul id="historyList"></ul>
+    </div>
+    </div>
+    <!-- PDF.js CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.313/pdf.min.js"></script>
+    <script src="scripts.js" type="module"></script>
+  </body>
 </html>
