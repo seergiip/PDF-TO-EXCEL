@@ -39,7 +39,7 @@
       showStatus("Procesando... (esto puede tardar si es OCR)");
 
       try {
-        const response = await fetch("http://127.0.0.1:8000/convert", {
+        const response = await fetch("https://pdf-to-excel-mqg9.onrender.com/convert", {
           method: "POST",
           body: formData,
         });

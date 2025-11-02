@@ -2,7 +2,7 @@
 from fastapi import FastAPI, UploadFile, File, HTTPException
 from fastapi.responses import StreamingResponse, JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
-from pdf_service import convert_pdf_to_excel
+from .pdf_service import convert_pdf_to_excel
 
 app = FastAPI(title="PDF2Excel - Dev")
 
