@@ -39,8 +39,6 @@ El objetivo es ofrecer una experiencia rápida, accesible y que ahorre tiempo en
 
 ## 📍 Roadmap
 - Implementar login y límites por usuario
-- Hosting en Render / Vercel
-- Historial de conversiones
 - Exportación adicional a CSV y Google Sheets
 
 ## 🤝 Contribuciones
