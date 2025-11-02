@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>PDF a Excel - Prueba</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 30px; max-width: 700px; }
+    #status { margin-top: 12px; font-size: 14px; color: #333; white-space: pre-wrap; }
+    button[disabled] { opacity: 0.6; }
+  </style>
+</head>
+<body>
+  <h2>Convertir PDF a Excel</h2>
+  <input type="file" id="fileInput" accept="application/pdf" />
+  <button id="convertBtn">Convertir</button>
+  <p id="status"></p>
+
+  <script>
+    const btn = document.getElementById("convertBtn");
+    const status = document.getElementById("status");
+
+    function showStatus(msg, isError=false) {
+      status.textContent = msg;
+      status.style.color = isError ? "crimson" : "#333";
+    }
+
+    btn.addEventListener("click", async () => {
+      const fileInput = document.getElementById("fileInput");
+      if (!fileInput.files.length) {
+        showStatus("Selecciona un PDF primero.", true);
+        return;
+      }
+
+      const file = fileInput.files[0];
+      const formData = new FormData();
+      formData.append("file", file);
+
+      btn.disabled = true;
+      showStatus("Procesando... (esto puede tardar si es OCR)");
+
+      try {
+        const response = await fetch("http://127.0.0.1:8000/convert", {
+          method: "POST",
+          body: formData,
+        });
+
+        if (!response.ok) {
+          // Intentar leer JSON con detalle del error
+          let errText = `Error ${response.status}`;
+          try {
+            const errJson = await response.json();
+            if (errJson && errJson.detail) errText = errJson.detail;
+          } catch (e) {
+            // no json
+            errText = await response.text();
+          }
+          showStatus("Error: " + errText, true);
+          btn.disabled = false;
+          return;
+        }
+
+        const blob = await response.blob();
+        // forzar descarga
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "resultado.xlsx";
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        window.URL.revokeObjectURL(url);
+
+        showStatus("Conversión completada. Archivo descargado.");
+      } catch (err) {
+        showStatus("Error en la conversión: " + err.message, true);
+      } finally {
+        btn.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>
