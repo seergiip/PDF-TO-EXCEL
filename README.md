@@ -26,7 +26,7 @@ El objetivo es ofrecer una experiencia rápida, accesible y que ahorre tiempo en
 
 1. Clonar el repositorio  
    ```bash
-   git clone https://github.com/tuUsuario/pdf2excel-app.git
+   git clone https://github.com/seergiip/PDF-TO-EXCEL.git
 2. Instalar dependencias (desde ``/backend``)
     ```
     pip install -r requirements.txt
